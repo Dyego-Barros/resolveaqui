@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+{%load static%}
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>ResolveAqui-PDV</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="{% static '/img/logo.png'%}" rel="icon">
+  <link href="{% static '/img/apple-touch-icon.png' %}" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.gstatic.com" rel="preconnect">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css'%}" rel="stylesheet">
+  <link href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css'%}" rel="stylesheet">
+  <link href="{% static 'vendor/boxicons/css/boxicons.min.css'%}" rel="stylesheet">
+  <link href="{% static 'vendor/quill/quill.snow.css'%}" rel="stylesheet">
+  <link href="{% static 'vendor/quill/quill.bubble.css'%}" rel="stylesheet">
+  <link href="{% static 'vendor/remixicon/remixicon.css'%}" rel="stylesheet">
+  <link href="{% static 'vendor/simple-datatables/style.css'%}" rel="stylesheet">
+
+  <!-- Template Main CSS File -->
+  <link href="{%static 'css/style.css'%}" rel="stylesheet">
+
+
+  <!-- =======================================================
+  * Template Name: NiceAdmin
+  * Template URL: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/
+  * Updated: Apr 20 2024 with Bootstrap v5.3.3
+  * Author: BootstrapMade.com
+  * License: https://bootstrapmade.com/license/
+  ======================================================== -->
+</head>
+
+<body>
+
+  <!-- ======= Header ======= -->
+{%include 'partial_templates/header.html'%}
+ <!-- End Header -->
+
+{%include 'partial_templates/menu.html'%}
+  <main id="main" class="main">
+
+    <div class="pagetitle">
+      <h1>{%block title%}{%endblock%}</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{%url 'dashboard'%}">Home</a></li>
+          <li class="breadcrumb-item active">{%block page_title%}{%endblock%}</li>
+        </ol>
+      </nav>
+    </div><!-- End Page Title -->
+
+    <section class="section dashboard">
+      <div class="row">
+        <!-- Left side columns -->
+        <div class="col-lg-12">
+          <div class="row">
+            {%block content%}
+
+            {%endblock%}         
+        </div>
+      </div>
+    </section>
+
+  </main><!-- End #main --> 
+ {%include 'partial_templates/footer.html'%}
+
+ {%block script%}
+
+ {%endblock%}
+</body>
+
+</html>

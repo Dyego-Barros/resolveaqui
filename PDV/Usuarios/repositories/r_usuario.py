@@ -4,6 +4,7 @@ from Database.Database import Database
 from PDV.config import cripto
 from cryptocode import decrypt, encrypt
 from traceback import format_exc as exec
+from uuid6 import uuid7
 
 class RepositoriesUsuario(IUsuario):
     def __init__(self):
@@ -11,13 +12,63 @@ class RepositoriesUsuario(IUsuario):
         
 
     def cadastrarUsuario(self, usuario:dict):
-        pass
+        retorno = {}
+        try:            
+            newUsuario = Usuario(**usuario)
+            usuarioid = uuid7()
+            newUsuario.usuarioid = str(usuarioid)
+            sql=""" INSERT  INTO usuario (usuarioid,nome,email,funcao,cargo,senha,ativo,perfilid,empresaid) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s);"""
+            senhacripto = encrypt(newUsuario.senha, cripto())
+            values = (newUsuario.usuarioid, newUsuario.nome, newUsuario.email, newUsuario.funcao,newUsuario.cargo,senhacripto,int(newUsuario.ativo),newUsuario.perfilid,newUsuario.empresaid)
+            insert = self._db.update_sql(sql=sql,values=values)
+            print(insert)
+            if insert:
+                retorno['Autorizado'] = True
+            else:
+                retorno['Autorizado']= False
+
+            return retorno
+        except Exception as error:
+            retorno['Autorizado']= False
+            print(error)
+            return retorno
 
     def editarUsuario(self,usuario:dict):
-        return super().editarUsuario()
+        retorno = {}
+        try:
+            print("Usuario a ser editado", usuario)
+            editarUsuario = Usuario(**usuario)
+            senhaCripto = encrypt(editarUsuario.senha, cripto())
+            sql = """UPDATE usuario SET nome=%s, email=%s, funcao=%s, cargo=%s, senha=%s, ativo=%s, perfilid=%s WHERE usuarioid=%s and empresaid=%s;"""
+            values= (editarUsuario.nome, editarUsuario.email, editarUsuario.funcao, editarUsuario.cargo, senhaCripto, int(editarUsuario.ativo),editarUsuario.perfilid, editarUsuario.usuarioid, editarUsuario.empresaid)
+            editar = self._db.update_sql(sql=sql,values=values)
+            if editar:
+                retorno['Autorizado'] = True
+                return retorno
+            else:
+                retorno['Autorizado'] = False
+                return retorno
+
+        except Exception as error:
+            print(error)
+            retorno['Autorizado']= False
+            return retorno
     
-    def listarUsuario(self):
-        return super().listarUsuario()
+    def listarUsuario(self,empresaid):
+        try:
+            sql="""SELECT us.usuarioid,us.nome,us.email,us.funcao,us.cargo,us.ativo,us.perfilid, pf.perfil from usuario as us inner join perfil as pf on us.perfilid = pf.perfilid WHERE us.empresaid =%s;"""
+            values =(empresaid, )
+            lista_usuarios = self._db.execute_sql(sql=sql,values=values)
+            print(lista_usuarios)
+            if lista_usuarios:
+                return lista_usuarios
+            else:
+                lista_usuarios = []
+                return list
+        except Exception as error:
+            lista_usuarios = []
+            print(error)
+            return lista_usuarios
     
     def excluirUsuario(self,id):
         return super().excluirUsuario()
@@ -70,7 +121,16 @@ class RepositoriesUsuario(IUsuario):
             print("Error %s  \n Rastreio %s", error, exec())
             retorno['Autorizado'] = False
             return retorno
-
+    
+    def ObterPerfil(self):
+        try:
+            sql="""SELECT perfilId, perfil FROM public.perfil;"""
+            perfil = self._db.execute_sql(sql=sql)
+            return perfil
+        except Exception as error:
+            print(error)
+            perfil =[]
+            return perfil
         
 
         

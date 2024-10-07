@@ -3,7 +3,7 @@ from django.views import View
 from django.contrib import messages
 from Usuarios.repositories.r_usuario import RepositoriesUsuario
 
-class Usuario(View):
+class Login(View):
     def __init__(self):
         self._usuario = RepositoriesUsuario()
 
@@ -20,6 +20,7 @@ class Usuario(View):
             if login['Autorizado']:
                 print(login)
                 request.session['Usuario'] = login['Usuario']
+                
                 #Salvando session
                 request.session.modified = True
                 return redirect("dashboard")
@@ -32,9 +33,7 @@ class Usuario(View):
                     
                 request.session['Tentativas'] = +1
                 messages.error(request, f"Usuário ou senha inválidos! Tentativa {request.session['Tentativas']} de 3")
-                return redirect("loginUsuario")
-        elif acao == "CadastroUsuario":
-            pass
+                return redirect("loginUsuario")       
         elif acao == 'logout':
             request.session.flush()
             return redirect('loginUsuario')
