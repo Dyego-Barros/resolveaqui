@@ -5,6 +5,42 @@
 {% block page_title %}Listar Usuarios{% endblock %}
 
 {% block content %}
+
+{%if messages%}
+    {%for message in messages%}
+        {%if message.tags == 'success'%}
+            <div class="message alert alert-success" role="alert">
+                {{ message }}
+            </div>
+        {%else%}
+            <div class="message alert alert-danger" role="alert">
+                {{ message }}
+            </div>
+            
+        {%endif%}
+       
+
+       
+    {%endfor%}
+    <script>
+        // Atraso em milissegundos (6 segundos)
+        const delay = 6000;
+
+        // Seleciona todas as mensagens
+        const messages = document.querySelectorAll('.message');
+        messages.forEach((msg, index) => {
+            // Remove a mensagem após 6 segundos
+            setTimeout(() => {
+                msg.style.transition = "opacity 0.5s ease"; // Transição suave
+                msg.style.opacity = 0; // Torna a mensagem invisível
+                setTimeout(() => {
+                    msg.remove(); // Remove o elemento do DOM após a transição
+                }, 500); // Tempo da transição
+            }, delay + index * 1000); // Adiciona um atraso incremental para cada mensagem
+        });
+    </script>
+   
+{%endif%}
 <div class="card">
     <div class="card-body">
         <h5 class="card-title">Listar Usuarios<span></span></h5>
@@ -30,32 +66,37 @@
                 {%if usuario.ativo == 1%}
                 <td><span class="badge bg-success">Ativo</span></td>
                 {%else%}
-                <td><span class="badge bg-default">Inativo</span></td>
+                <td><span class="badge bg-secondary">Inativo</span></td>
                 {%endif%}
                 <td>
                     <!-- Botões de ação -->
                     <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#{{usuario.usuarioid}}">Editar</button>
                     <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#excluir{{usuario.usuarioid}}">Excluir</button>
-                    <button type="button" class="btn btn-warning btn-sm">Desativar</button>
+
+                    {% if usuario.ativo == 1 %}
+                    <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#desativar{{usuario.usuarioid}}">Desativar</button>
+                    {% else %}
+                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#ativar{{usuario.usuarioid}}">Ativar</button>
+                    {% endif %}
                 </td>
             </tr>
 
             <!-- Modal de Edição -->
             <div class="modal fade" id="{{usuario.usuarioid}}" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-lg">
+                <div class="modal-dialog modal-lg modal-md">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" id="editModalLabel">Editar {{usuario.nome}}</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <form method="post" name="usuario" id="user{{usuario.usuarioid}}" action="{% url 'editarUsuario' %}" novalidate>
+                            <form method="post" name="usuario" id="user{{usuario.usuarioid}}"  action="{% url 'editarUsuario' %}" >
                                 <input type="hidden" name="usuarioid" value="{{usuario.usuarioid}}"/>
                                 {% csrf_token %}
                                 <div class="row mb-3">
                                     <label for="inputText" class="col-sm-2 col-form-label">Nome *</label>
                                     <div class="col-sm-10">
-                                        <input type="text" class="form-control" name="nome" id="nome" value="{{usuario.nome}}" required >
+                                        <input type="text" class="form-control" name="nome" id="nome{{usuario.usuarioid}}" value="{{usuario.nome}}" required >
                                         <div class="invalid-feedback">Nome é obrigatório!</div>
                                     </div>
                                 </div>
@@ -63,7 +104,7 @@
                                 <div class="row mb-3">
                                     <label for="inputEmail" class="col-sm-2 col-form-label">Email *</label>
                                     <div class="col-sm-10">
-                                        <input type="email" class="form-control" name="email" id="email" value="{{usuario.email}}" required >
+                                        <input type="email" class="form-control" name="email" id="email{{usuario.usuarioid}}" value="{{usuario.email}}" required >
                                         <div class="invalid-feedback">Email é obrigatório!</div>
                                     </div>
                                 </div>
@@ -71,30 +112,31 @@
                                 <div class="row mb-3">
                                     <label for="inputPassword" class="col-sm-2 col-form-label">Função</label>
                                     <div class="col-sm-10">
-                                        <input type="text" class="form-control" name="funcao" id="funcao" value="{{usuario.funcao}}" >                       
+                                        <input type="text" class="form-control" name="funcao" id="funcao{{usuario.usuarioid}}" value="{{usuario.funcao}}" >                       
                                     </div>
                                 </div>
       
                                 <div class="row mb-3">
                                     <label for="inputNumber" class="col-sm-2 col-form-label">Cargo</label>
                                     <div class="col-sm-10">
-                                        <input type="text" class="form-control" name="cargo" id="cargo" value="{{usuario.cargo}}" >
+                                        <input type="text" class="form-control" name="cargo" id="cargo{{usuario.usuarioid}}" value="{{usuario.cargo}}" >
                                     </div>
                                 </div>
       
                                 <div class="row mb-3">
                                     <label for="inputNumber" class="col-sm-2 col-form-label">Senha *</label>
                                     <div class="col-sm-10">
-                                        <input type="password" class="form-control" name="senha" id="senha" required >
-                                        <div class="invalid-feedback">Senha é obrigatória!</div>
-                                    </div>                     
+                                        <input type="password" class="form-control" name="senha" id="senha{{usuario.usuarioid}}" required >    
+                                        <div class="invalid-feedback">Senha é obrigatória!</div>                                     
+                                    </div>  
+                                                    
                                 </div>
       
                                 <input type="hidden" name="ativo" value="1"/>
                                 <div class="row mb-3"> 
                                     <label for="inputNumber" class="col-sm-2 col-form-label">Perfil *</label>
                                     <div class="col-sm-10">
-                                        <select class="form-select" aria-label="Default select example" name="perfilid" id="perfilid" required >
+                                        <select class="form-select" aria-label="Default select example" name="perfilid" id="perfilid{{usuario.usuarioid}}" required >
                                             <option value="" selected>Selecione um Perfil</option>
                                             {% for perfil in Perfil %}
                                                 {% if perfil.perfilid == usuario.perfilid %}
@@ -128,6 +170,11 @@
                         </div>
                         <div class="modal-body">
                             <p>Deseja realmente excluir o usuário {{usuario.nome}} ?</p>
+                            <form method="post" name="excluirUsu{{usuario.usuarioid}}" id="excluirUsu{{usuario.usuarioid}}" action="{% url 'excluirUsuario'%}" style="display: none;">
+                                {%csrf_token%}
+                                <input type="hidden" name="usuarioid" value="{{usuario.usuarioid}}" />
+                                <input type="hidden" name="nome" value="{{usuario.nome}}" />
+                            </form>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
@@ -137,6 +184,56 @@
                 </div>
             </div>
             <!--End Modal Excluir-->
+
+            <!--Inicio Modal desativar-->
+            <div class="modal fade" id="desativar{{usuario.usuarioid}}" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editModalLabel">Excluir {{usuario.nome}}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Deseja realmente desativar o usuário {{usuario.nome}} ?</p>
+                            <form method="post" name="desativarUsu{{usuario.usuarioid}}" id="desativarUsu{{usuario.usuarioid}}" action="{% url 'desativarUsuario'%}" style="display: none;">
+                                {%csrf_token%}
+                                <input type="hidden" name="usuarioid" value="{{usuario.usuarioid}}" />
+                                <input type="hidden" name="nome" value="{{usuario.nome}}" />
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                            <button type="button" class="btn btn-warning" onclick="desativar(event, '{{usuario.usuarioid}}')">Desativar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--End Modal desativar-->
+             <!--Inicio Modal Ativar-->
+             <div class="modal fade" id="ativar{{usuario.usuarioid}}" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editModalLabel">Excluir {{usuario.nome}}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Deseja realmente ativar o usuário {{usuario.nome}} ?</p>
+                            <form method="post" name="ativarUsu{{usuario.usuarioid}}" id="ativarUsu{{usuario.usuarioid}}" action="{% url 'desativarUsuario'%}" style="display: none;">
+                                {%csrf_token%}
+                                <input type="hidden" name="acao" value="ativar"/>
+                                <input type="hidden" name="usuarioid" value="{{usuario.usuarioid}}" />
+                                <input type="hidden" name="nome" value="{{usuario.nome}}" />
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                            <button type="button" class="btn btn-success" onclick="ativar(event, '{{usuario.usuarioid}}')">Ativar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--End Modal Ativar-->
             {% endfor %}
           </tbody>
         </table>
@@ -150,19 +247,42 @@
     
     function editar(event, id) {
         form = document.getElementById('user' + id);
+        enviar = true
         form.classList.add('was-validated');
-        if (!form.checkValidity()) {    
+        
+        if (!form.checkValidity()) {
             event.preventDefault();
-            event.stopPropagation();
-          
+            event.stopPropagation();           
+            form.reportValidity()
+            enviar=false
+            
                 
         } else {
+            form.submit();
+            enviar=true
+        }
+    }
+
+    function excluir(event, id) {
+        form = document.getElementById('excluirUsu' + id)
+        if(form){
             form.submit();
         }
     }
 
-    function excluir(id) {
-        // código que vai excluir o usuário
+    function desativar(event, id){
+        form = document.getElementById('desativarUsu' + id);
+        if(form){
+            form.submit();
+        }
+       
+    }
+    function ativar(event, id){
+        form = document.getElementById('ativarUsu' + id);
+        if(form){
+            form.submit();
+        }
+       
     }
 </script>
 {% endblock %}

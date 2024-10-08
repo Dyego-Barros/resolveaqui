@@ -71,7 +71,20 @@ class RepositoriesUsuario(IUsuario):
             return lista_usuarios
     
     def excluirUsuario(self,id):
-        return super().excluirUsuario()
+        try:
+            retorno ={}
+            sql = """DELETE FROM usuario WHERE usuarioid=%s"""
+            values =(id,)
+            excluir = self._db.update_sql(sql=sql, values=values)
+            if excluir:
+                retorno['Autorizado'] = True
+            else:
+                retorno['Autorizado']= False
+            return retorno
+        except Exception as error:
+            print(error)
+            retorno['Autorizado']= False
+            return retorno
     
     def obterUsuario(self,id):
         return super().obterUsuario()
@@ -108,11 +121,11 @@ class RepositoriesUsuario(IUsuario):
             retorno['Mensagem']= "Usuário ou senha incorretos!"
             return retorno
     
-    def desativarUsuario(self,email):
+    def desativarUsuario(self,id):
         try:
             retorno = {}
-            sql = """UPDATE public.usuario ativo=0 WHERE email =%s;"""
-            values= (email,)
+            sql = """UPDATE usuario SET ativo=0 WHERE usuarioid =%s;"""
+            values= (id,)
             upd = self._db.update_sql(sql,values)
             if upd:
                 retorno['Autorizado'] = True
@@ -121,7 +134,21 @@ class RepositoriesUsuario(IUsuario):
             print("Error %s  \n Rastreio %s", error, exec())
             retorno['Autorizado'] = False
             return retorno
-    
+        
+    def ativarUsuario(self,id):
+        try:
+            retorno = {}
+            sql = """UPDATE usuario SET ativo=1 WHERE usuarioid =%s;"""
+            values= (id,)
+            upd = self._db.update_sql(sql,values)
+            if upd:
+                retorno['Autorizado'] = True
+                return retorno
+        except Exception as error:
+            print("Error %s  \n Rastreio %s", error, exec())
+            retorno['Autorizado'] = False
+            return retorno
+        
     def ObterPerfil(self):
         try:
             sql="""SELECT perfilId, perfil FROM public.perfil;"""
